@@ -113,22 +113,34 @@ int main() {
     imlib_context_set_image(image);
     int img_width = imlib_image_get_width();
     int img_height = imlib_image_get_height();
-
     Pixmap pixmap = XCreatePixmap(display, root, width, height, DefaultDepth(display, screen));
     
     imlib_context_set_drawable(pixmap);
     
+    int src_h, src_w, src_x, src_y;
 
     if (num_monitors < 1) {
 	imlib_render_image_on_drawable_at_size(0, 0, width, height);
     }
     else {
 	for (int i = 0; i < num_monitors; i++) {
-	    imlib_render_image_on_drawable_at_size(
-		monitors[i].x_org,
-	    	monitors[i].y_org,
-	    	monitors[i].width,
-	    	monitors[i].height
+	    float image_aspect = (float)img_width / img_height;
+	    float monitor_aspect = (float)monitors[i].width / monitors[i].height;
+	    if (image_aspect > monitor_aspect) {
+	        src_h = img_height;
+	        src_w = (int)(monitor_aspect * img_height);
+	        src_x = (img_width - src_w) / 2;
+	        src_y = 0;
+	    }
+	    else {
+	        src_w = img_width;
+	        src_h = (int)(img_width / monitor_aspect);
+	        src_x = 0;
+	        src_y = (img_height - src_h) / 2;
+	    }
+	    imlib_render_image_part_on_drawable_at_size(
+	        src_x, src_y, src_w, src_h,
+	        monitors[i].x_org, monitors[i].y_org, monitors[i].width, monitors[i].height
 	    );
 	}
     }
