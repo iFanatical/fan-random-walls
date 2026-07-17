@@ -89,17 +89,11 @@ int main() {
         printf("Could not open X display.\n");
         return 1;
     }
-
-    int screen = DefaultScreen(display);
-    Window root = RootWindow(display, screen);
-    Atom prop_root = XInternAtom(display, "_XROOTPMAP_ID", False);
-    Atom prop_esetroot = XInternAtom(display, "ESETROOT_PMAP_ID", False);
-
     Atom actual_type;
     int actual_format;
     unsigned long nitems, bytes_after;
     unsigned char *prop_data = NULL;
-
+    
     if (XGetWindowProperty(display, root, prop_root, 0, 1, False, XA_PIXMAP,
                             &actual_type, &actual_format, &nitems, &bytes_after,
                             &prop_data) == Success && prop_data) {
@@ -110,6 +104,8 @@ int main() {
         XFree(prop_data);
     }
 
+    int screen = DefaultScreen(display);
+    Window root = RootWindow(display, screen);
     int width = DisplayWidth(display, screen);
     int height = DisplayHeight(display, screen);
     int num_monitors;
@@ -163,7 +159,10 @@ int main() {
 	}
     }
     XSetWindowBackgroundPixmap(display, root, pixmap);
-
+    
+    Atom prop_root = XInternAtom(display, "_XROOTPMAP_ID", False);
+    Atom prop_esetroot = XInternAtom(display, "ESETROOT_PMAP_ID", False);
+    
     XChangeProperty(display, root, prop_root, XA_PIXMAP, 32, PropModeReplace, (unsigned char *)&pixmap, 1);
     XChangeProperty(display, root, prop_esetroot, XA_PIXMAP, 32, PropModeReplace, (unsigned char *)&pixmap, 1);
 
